@@ -8,7 +8,10 @@ const ShopContextProvider = (props) => {
 
     const currency = '$';
     const delivery_fee = 10;
+    const [search, setSearch] = useState('');
+    const [showSearch, setShowSearch] = useState(true);
     const [cartItems, setCartItems] = useState({});
+    const [wishlist, setWishlist] = useState([]);
     const navigate = useNavigate()
 
     const addToCart = async (itemId, size) => {
@@ -69,10 +72,22 @@ const ShopContextProvider = (props) => {
         return totalAmout
     }
 
+    const handleWishlistToggle = (productId) => {
+        const product = products.find((p) => p._id === productId);
+        if (wishlist.includes(product)) {
+        // Remove product from wishlist
+        setWishlist(wishlist.filter((product) => product._id !== productId));
+        } else {
+        // Add product to wishlist
+        setWishlist([...wishlist, product]);
+        }
+    };
+
     const value = {
         products, currency, delivery_fee,
+        search, setSearch, showSearch, setShowSearch,
         cartItems, addToCart, getCartCount, updateQuantity,
-        getCartAmount, navigate
+        getCartAmount, navigate, wishlist, setWishlist, handleWishlistToggle
     }
 
     return (
