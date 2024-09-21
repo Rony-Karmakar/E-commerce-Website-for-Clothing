@@ -3,6 +3,7 @@ import { FiMenu } from 'react-icons/fi';
 import { IoMdClose } from "react-icons/io";
 import { BsSearch } from "react-icons/bs";
 import { PiShoppingCartSimpleLight } from "react-icons/pi";
+import { CiUser } from "react-icons/ci";
 import { useState } from 'react';
 import clsx from 'clsx';
 import axios from 'axios';
@@ -11,6 +12,7 @@ export const Navbar = () => {
     const [isSidebarOpen, setSidebar] = useState(false)
     const [input, setInput] = useState('');
     const [result, setResult] = useState([]);
+    const [isDropdownVisible, setDropdownVisible] = useState(false);
 
     const fetchData =async (value) => {
         try {
@@ -110,6 +112,13 @@ export const Navbar = () => {
                         
                     </div>
                 </form>
+            </div>
+            <div>
+                <section className='flex items-center gap-4'>
+                    <Link to="/Profile" className='text-3xl'>
+                        <CiUser />
+                    </Link>
+                </section>
             </div>
             <div>
                 <section className='flex items-center gap-4'>

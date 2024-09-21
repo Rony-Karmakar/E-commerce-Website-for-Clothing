@@ -2,6 +2,8 @@ import React, { useContext, useEffect, useState } from 'react'
 import { useParams } from "react-router-dom";
 import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
+import ProductReviews from '../components/ProductReviews';
+import AddReview from '../components/AddReview';
 
 const ProductDetails = () => {
 
@@ -28,6 +30,7 @@ const ProductDetails = () => {
     },[productId])
 
     return productData ? (
+        <div>
         <div className='border-t-2 pt-10 transition-opacity ease-in duration-500 opacity-100'>
             {/* Product Data */}
             <div className='flex gap-12 sm:gap-12 flex-col sm:flex-row'>
@@ -69,8 +72,11 @@ const ProductDetails = () => {
                 </div>
             </div>
         </div>
+        <div>
+            <AddReview/>
+        </div>
+    </div>
     ) : <div className='opacity-0'></div>
-    
 }
 
 export default ProductDetails;

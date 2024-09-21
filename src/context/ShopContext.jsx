@@ -1,10 +1,23 @@
-import { createContext, useEffect, useState } from "react"
+import { createContext, useEffect, useReducer, useState } from "react"
 import { products } from "../assets/assets"
 import { useNavigate } from 'react-router-dom';
+import axios from "axios";
 
 export const ShopContext = createContext();
 
+const API = import.meta.env.VITE_NAME;
+console.log(API)
+
 const ShopContextProvider = (props) => {
+
+    const getProducts= async (url) => {
+        const res = await axios.get(url);
+        const products = await res.data;
+    }
+
+    useEffect(()=>{
+        getProducts(API);
+    }, [])
 
     const currency = '$';
     const delivery_fee = 10;
