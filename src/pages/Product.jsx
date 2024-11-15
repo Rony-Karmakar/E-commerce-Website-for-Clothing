@@ -69,8 +69,8 @@ const Product = () => {
             </div>
             <div className='py-5 px-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-6'>
                 {
-                    currentItems.map((item, index)=> (
-                        <ProductCard key={index} id={item._id} image={item.image[0]} name={item.name} price={item.price}/>
+                    products.map((item, index)=> (
+                        <ProductCard key={index} id={item.id} image={item.image} name={item.title} price={item.price}/>
                     ))
                 }
                 

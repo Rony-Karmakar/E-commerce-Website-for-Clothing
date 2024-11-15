@@ -1,15 +1,41 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import InputField from '../components/InputField';
 import { AiOutlineEdit } from "react-icons/ai";
 import { IoMdClose } from "react-icons/io";
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const UserProfile = () => {
+    const navigate = useNavigate();
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [dob, setDob] = useState(''); 
     const [address, setAddress] = useState('');
     const [edit, setEdit] = useState(false);
+
+    const handleLogOut = () => {
+        localStorage.removeItem("jwtToken")
+        navigate("/Log")
+    }
+    useEffect(() => {
+        const fetchProfile = async() => {
+            try{
+                const res = await axios.get("http://localhost:5454/api/users/profile",{
+                    headers:{Authorization: `Bearer ${localStorage.getItem("jwtToken")}`}
+                })
+                console.log(res);
+                console.log(res.data.firstName)
+                setFirstName(res.data.firstName);
+                setLastName(res.data.lastName);
+                setEmail(res.data.email);
+            }catch(err){
+                console.log("wrong", err)
+            }
+        }
+
+        fetchProfile();
+    }, [])
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -63,12 +89,13 @@ const UserProfile = () => {
                 <i className="fas fa-lock mr-2"></i> Change Password
                 </button>
 
-                <button className="w-full flex items-center p-3 text-left bg-gray-100 hover:bg-gray-200 rounded">
+                <button className="w-full flex items-center p-3 text-left bg-gray-100 hover:bg-gray-200 rounded"
+                onClick={handleLogOut}>
                 <i className="fas fa-sign-out-alt mr-2"></i> Log Out
                 </button>
             </div>
             </div>
-            {edit ? <div className=" w-full max-w-lg sm:max-w-md bg-white p-6 rounded-lg shadow-md">
+            {edit ? <div className="w-full max-w-2xl bg-white p-6 shadow-lg rounded-lg ml-8">
                 <div className='flex justify-between'>
                     <h2 className="text-2xl font-bold text-gray-700 mb-4">User Profile</h2>
                     <button onClick={()=>{setEdit(false)}} className='text-2xl'>
@@ -123,7 +150,7 @@ const UserProfile = () => {
                     Save Profile
                     </button>
                 </form>
-            </div> : <div className=" w-full max-w-lg sm:max-w-md bg-white p-6 rounded-lg shadow-md">
+            </div> : <div className="w-full max-w-2xl bg-white p-6 shadow-lg rounded-lg ml-8">
                 <div className='flex justify-between'>
                     <h2 className="text-2xl font-bold text-gray-700 mb-4">User Profile</h2>
                     <button onClick={()=>{setEdit(true)}} className='text-2xl'>

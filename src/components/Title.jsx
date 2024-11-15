@@ -2,7 +2,7 @@ import React from 'react';
 
 const Title = ({ text1, text2 }) => {
     return (
-      <div className="flex text-center my-8 gap-2">
+      <div className="flex text-center my-4 gap-2">
         <p className="text-lg font-bold text-gray-800">
           {text1}
         </p>

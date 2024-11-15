@@ -1,29 +1,57 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ShopContext } from '../context/ShopContext';
-import ProductCard from '../components/ProductCard';
+import axios from 'axios';
+import WishListProductCard from '../components/wishListProductCard';
 
 const Wishlists = () => {
-    
-    const {products, wishlist} = useContext(ShopContext)
-    console.log(wishlist);
-    return (
-        <div className="p-4">
-          {/* Wishlist Page */}
-          <h2 className="text-xl font-bold mt-8 mb-4">Wishlist</h2>
-          {wishlist.length > 0 ? (
-            <div className='py-5 px-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-6'>
-              {
-                wishlist.map((item, index)=> (
-                  <ProductCard key={index} id={item._id} image={item.image[0]} name={item.name} price={item.price}/>
-              ))
+  const { products, wishlist, removeFromWishlist, addToCart } = useContext(ShopContext);
+  const [wishListItems, setWishLsiItems] = useState([]);
+  const [render, setRender] = useState(1);
 
-              }  
-            </div>
-          ) : (
-            <p>No items in the wishlist.</p>
-          )}
+  useEffect(()=> {
+    const fetchProducts = async () => {
+      try{
+        const res = await axios.get("http://localhost:5454/api/wishlist/", {
+          headers: { 
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}` 
+          }   
+        })
+        setWishLsiItems(res.data.wishlistItems)
+      }catch(err){
+        console.log("Something went wrong", err)
+      }
+    }
+
+    fetchProducts()
+  },[render])
+
+  return (
+    <div className="p-4">
+      <h2 className="text-2xl font-bold mt-8 mb-4">
+        My Wishlist <span className="text-gray-500">({wishListItems.length} items)</span>
+      </h2>
+      
+      {wishListItems.length > 0 ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {wishListItems.map((item, index) => (
+            <WishListProductCard
+              key={index}
+              id={item.id}
+              image={item.product.imageUrl}
+              name={item.product.title}
+              price={item.product.price}
+              discountedPrice={item.product.discountedPrice}
+              discountPercent={item.product.discountPercent}
+              render={render}
+              setRender={setRender}
+            />
+          ))}
         </div>
-    )
-}
+      ) : (
+        <p>No items in the wishlist.</p>
+      )}
+    </div>
+  );
+};
 
-export default Wishlists
+export default Wishlists;

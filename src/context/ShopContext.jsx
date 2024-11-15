@@ -1,106 +1,38 @@
-import { createContext, useEffect, useReducer, useState } from "react"
-import { products } from "../assets/assets"
+import { createContext, useEffect, useState } from "react"
+//import { products } from "../assets/assets"
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 
 export const ShopContext = createContext();
 
-const API = import.meta.env.VITE_NAME;
-console.log(API)
+// const API = import.meta.env.VITE_NAME;
 
 const ShopContextProvider = (props) => {
-
-    const getProducts= async (url) => {
-        const res = await axios.get(url);
-        const products = await res.data;
-    }
-
-    useEffect(()=>{
-        getProducts(API);
-    }, [])
-
+    
+    const [cartItemCount, setCartItemCount] = useState([0])
+    const [rerender, setRerender] = useState(0);
     const currency = '$';
     const delivery_fee = 10;
-    const [search, setSearch] = useState('');
-    const [showSearch, setShowSearch] = useState(true);
-    const [cartItems, setCartItems] = useState({});
-    const [wishlist, setWishlist] = useState([]);
-    const navigate = useNavigate()
 
-    const addToCart = async (itemId, size) => {
-
-        let cartData = structuredClone(cartItems);
-
-        if (cartData[itemId]) {
-            if (cartData[itemId][size]) {
-                cartData[itemId][size] += 1;
+    const fetchCartData = async () => {
+        try{
+            const res = await axios.get("http://localhost:5454/api/cart/", {
+                headers: { 
+                    Authorization: `Bearer ${localStorage.getItem("jwtToken")}` 
+                  }
+            })
+            if(res){
+                console.log(res.data)
+                setCartItemCount(res.data.cartItems.length);
             }
-            else{
-                cartData[itemId][size] = 1;
-            }
+        }catch(err){
+            console.log("Something went wrong",err)
         }
-        else{
-            cartData[itemId] = {};
-            cartData[itemId][size] = 1;
-        }
-        setCartItems(cartData);
     }
-
-    const getCartCount = () => {
-        let totalCount =0;
-        for (const items in cartItems){
-            for(const item in cartItems[items]){
-                try{
-                    if(cartItems[items][item] > 0){
-                        totalCount += cartItems[items][item]
-                    }
-                }catch(error){
-
-                }
-            }
-        }
-        return totalCount;
-    }    
-
-    const updateQuantity = async (itemId, size, quantity) => {
-        let cartData = structuredClone(cartItems);
-        cartData[itemId][size] = quantity;
-        setCartItems(cartData)
-    }
-
-    const getCartAmount = () => {
-        let totalAmout = 0;
-        for(const items in cartItems){
-            let itemInnfo = products.find((product) => product._id === items);
-            for(const item in cartItems[items]){
-                try {
-                    if (cartItems[items][item] > 0) {
-                        totalAmout += itemInnfo.price * cartItems[items][item]
-                    } 
-                } catch (error){
-
-                }
-            }
-        }
-        return totalAmout
-    }
-
-    const handleWishlistToggle = (productId) => {
-        const product = products.find((p) => p._id === productId);
-        if (wishlist.includes(product)) {
-        // Remove product from wishlist
-        setWishlist(wishlist.filter((product) => product._id !== productId));
-        } else {
-        // Add product to wishlist
-        setWishlist([...wishlist, product]);
-        }
-    };
 
     const value = {
-        products, currency, delivery_fee,
-        search, setSearch, showSearch, setShowSearch,
-        cartItems, addToCart, getCartCount, updateQuantity,
-        getCartAmount, navigate, wishlist, setWishlist, handleWishlistToggle
+        rerender, setRerender, currency, delivery_fee,
+        cartItemCount, fetchCartData
     }
 
     return (

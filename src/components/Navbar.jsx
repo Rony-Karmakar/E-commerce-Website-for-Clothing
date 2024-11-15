@@ -4,132 +4,152 @@ import { IoMdClose } from "react-icons/io";
 import { BsSearch } from "react-icons/bs";
 import { PiShoppingCartSimpleLight } from "react-icons/pi";
 import { CiUser } from "react-icons/ci";
-import { useState } from 'react';
-import clsx from 'clsx';
-import axios from 'axios';
+import { useEffect, useState, useContext } from 'react';
+import { ShopContext } from '../context/ShopContext';
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
-export const Navbar = () => {
-    const [isSidebarOpen, setSidebar] = useState(false)
+const Navbar = () => {
+    const [isSidebarOpen, setSidebar] = useState(false);
+    const { cartItemCount, fetchCartData, rerender } = useContext(ShopContext);
     const [input, setInput] = useState('');
-    const [result, setResult] = useState([]);
-    const [isDropdownVisible, setDropdownVisible] = useState(false);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const navigate = useNavigate();
+    
+    useEffect(() => {
+        fetchCartData();
+        console.log(cartItemCount)
+    }, [rerender]);
 
-    const fetchData =async (value) => {
-        try {
-            const response = await axios.get("https://jsonplaceholder.typicode.com/users");
-            const results = response.data.filter((user) => {
-              return (
-                value &&
-                user &&
-                user.name &&
-                user.name.toLowerCase().includes(value.toLowerCase())
-              );
-            });
-            setResult(results)
-        } catch (error) {
-            console.error('Error fetching data:', error);
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (input.trim()) {
+            navigate(`/Search/${input}`);
+            setInput('');
+            setIsSearchOpen(false);
         }
-    }
-
-    const HandleChange = (value) => {
-        setInput(value)
-        fetchData(value)
     }
 
     const navlinks = [
-        {
-            name: "Home",
-            link: "/"
-        },
-        {
-            name: "Orders",
-            link: "/Orders"
-        },
-        {
-            name: "Cart",
-            link: "/Cart"
-        },
-        {
-            name: "Wishlists",
-            link: "/Wishlists"
-        },
-        {
-            name: "Help & Support",
-            link: "/Help & Support"
-        },
-        {
-            name: "Log In",
-            link: "/Log"
-        }
-    ]
+        { name: "Home", link: "/" },
+        { name: "Orders", link: "/TotalOrders" },
+        { name: "Cart", link: "/Cart" },
+        { name: "Wishlists", link: "/Wishlists" },
+        { name: "Help & Support", link: "/Help & Support" },
+        { name: "Log In", link: "/Log" }
+    ];
+
+    const categories = [
+        { name: "Men", link: "/Men" },
+        { name: "Women", link: "/Women" },
+        { name: "Kids", link: "/Kids" }
+    ];
 
     return (
-        
-        <nav >
-            <div className="flex justify-between px-3 md:px-8 gap-2 items-center py-4">
-            <section className='flex items-center gap-1 md:gap-4'>
-                <FiMenu className='text-3xl cursor-pointer' onClick={()=> setSidebar(true)}/>
-                <Link to="/" className='text-3xl md:text-4xl font-mono'>logo</Link>
-            </section>
-            {/* Sidebar */}
-            <div className={clsx(
-                'fixed h-full w-screen bg-black/50 backdrop-blur-sm top-0 right-0 -translate-x-full transition-all z-50',
-                isSidebarOpen && "translate-x-0"
-            )}>
-                <section className='text-black bg-white flex-col absolute left-0 top-0 h-screen p-8 gap-8 z-50 w-56 flex'>
-                    <IoMdClose
-                    onClick={()=> setSidebar(false)} className='mt-0 mb-8 text-3xl cursor-pointer'/>
-                    {
-                        navlinks.map((links, i) => (
-                            <Link key={i} to={links.link} className='font-bold'>
-                                {links.name}
-                            </Link>
-                        ))
-                    }
-                </section>
-            </div>
-            
-            <div className='flex justify-between gap-4 lg:gap-10 xl:gap-16 '>
-                <Link to='/Men' className='font-bold hover:bg-gray-400 rounded-lg px-2 py-1'>
-                    Men
-                </Link>
-
-                <Link to='/Women' className='font-bold hover:bg-gray-400 rounded-lg px-2 py-1'>
-                    Women
-                </Link>
-
-                <Link to='/Kids' className='font-bold hover:bg-gray-400 rounded-lg px-2 py-1'>
-                    Kids
-                </Link>
-            </div>
-            <div>
-                <form>
-                    <div className="w-25 md:w-60 xl:w-96 flex text-gray-900 border border-gray-700 rounded-3xl p-1 pl-3 text-sm pr-2">
-                        <input  id="default-search" className="w-full text-black border-none outline-none" placeholder="Search" required  onChange={(e) => {const value= e.target.value; HandleChange(e.target.value)}}/>
-                        <button className="text-black-400 font-bold py-2 px-4 rounded inline-flex items-center"> 
-                            <BsSearch className="w-4 h-4"/>
+        <nav className="bg-white shadow-md">
+            <div className="container mx-auto px-4 py-3">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                        <button onClick={() => setSidebar(true)} className="text-gray-600 hover:text-gray-900 focus:outline-none">
+                            <FiMenu className="text-2xl" />
                         </button>
-                        
+                        <Link to="/" className="text-2xl font-bold text-gray-800">LOGO</Link>
                     </div>
-                </form>
+
+                    <div className="hidden md:flex space-x-6">
+                        {categories.map((category, index) => (
+                            <Link key={index} to={category.link} className="text-gray-600 hover:text-gray-900 font-medium">
+                                {category.name}
+                            </Link>
+                        ))}
+                    </div>
+
+                    <div className="flex items-center space-x-4">
+                        <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="text-gray-600 hover:text-gray-900 focus:outline-none">
+                            <BsSearch className="text-xl" />
+                        </button>
+                        <Link to="/Profile" className="text-gray-600 hover:text-gray-900">
+                            <CiUser className="text-2xl" />
+                        </Link>
+                        <Link to="/Cart" className="text-gray-600 hover:text-gray-900 relative">
+                            <PiShoppingCartSimpleLight className="text-2xl" />
+                            {cartItemCount > 0 && (
+                                <span className="absolute -top-2 -right-2 bg-gray-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                                    {cartItemCount}
+                                </span>
+                            )}
+                        </Link>
+                    </div>
+                </div>
+
+                <AnimatePresence>
+                    {isSearchOpen && (
+                        <motion.form 
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.2 }}
+                            onSubmit={handleSearch}
+                            className="mt-4"
+                        >
+                            <div className="relative">
+                                <input
+                                    type="search"
+                                    placeholder="Search..."
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    className="w-full p-2 pl-10 pr-4 text-gray-900 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                                <button type="submit" className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                                    <BsSearch className="text-gray-400" />
+                                </button>
+                            </div>
+                        </motion.form>
+                    )}
+                </AnimatePresence>
             </div>
-            <div>
-                <section className='flex items-center gap-4'>
-                    <Link to="/Profile" className='text-3xl'>
-                        <CiUser />
-                    </Link>
-                </section>
-            </div>
-            <div>
-                <section className='flex items-center gap-4'>
-                    <Link to="/Cart" className='text-3xl'>
-                        <PiShoppingCartSimpleLight />
-                    </Link>
-                </section>
-            </div>
-            </div>
-            <hr className='border border-gray-200'/>
+
+            <AnimatePresence>
+                {isSidebarOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="fixed inset-0 bg-black bg-opacity-50 z-50"
+                        onClick={() => setSidebar(false)}
+                    >
+                        <motion.div
+                            initial={{ x: "-100%" }}
+                            animate={{ x: 0 }}
+                            exit={{ x: "-100%" }}
+                            transition={{ duration: 0.3 }}
+                            className="fixed top-0 left-0 bottom-0 w-64 bg-white shadow-lg"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="p-5">
+                                <button onClick={() => setSidebar(false)} className="absolute top-4 right-4 text-gray-600 hover:text-gray-900">
+                                    <IoMdClose className="text-2xl" />
+                                </button>
+                                <div className="mt-8 space-y-4">
+                                    {navlinks.map((link, index) => (
+                                        <Link
+                                            key={index}
+                                            to={link.link}
+                                            className="block text-gray-600 hover:text-gray-900 font-medium"
+                                            onClick={() => setSidebar(false)}
+                                        >
+                                            {link.name}
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </nav>
-        
-    )
+    );
 }
+
+export default Navbar;
