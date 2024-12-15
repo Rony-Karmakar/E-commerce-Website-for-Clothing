@@ -1,6 +1,5 @@
-'use client'
-
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Star, ShoppingCart, Zap, Award, TrendingUp } from 'lucide-react'
 import axios from 'axios'
@@ -105,7 +104,7 @@ function ProductSection({ title, products, style }) {
         >
           {title}
         </motion.h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {products.slice(0, 8).map((product, index) => (
             <ProductCard key={product.id} product={product} index={index} style={style} />
           ))}
@@ -137,32 +136,38 @@ function ProductCard({ product, index, style }) {
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: index * 0.1 }}
-      whileHover={{ y: -5 }}
-      className={`rounded-lg overflow-hidden shadow-md hover:shadow-xl transition duration-300 border ${cardStyles[style]}`}
+      className={`rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border ${cardStyles[style]} flex flex-col h-full`}
     >
-      <div className="relative">
-        <img src={product.imageUrl} alt={product.title} className="w-full h-48 object-cover" />
-        <div className={`absolute top-0 right-0 m-2 p-1 rounded-full ${cardStyles[style]}`}>
+      <div className="relative w-full h-60 overflow-hidden bg-gray-200">
+        <Link to={`/Product/${product.id}`}>
+          <img 
+            src={product.imageUrl} 
+            alt={product.title} 
+            className="w-full h-full object-cover object-top hover:scale-110 transition ease-in-out"
+          />
+        </Link>
+        <div className={`absolute top-2 right-2 p-1 rounded-full ${cardStyles[style]}`}>
           {iconStyles[style]}
         </div>
       </div>
-      <div className="p-4">
-        <h3 className="text-sm font-semibold mb-1 text-gray-800 truncate">{product.title}</h3>
+      <div className="p-4 flex flex-col flex-grow">
+        <h3 className="text-sm font-semibold mb-1 text-gray-800 line-clamp-2">{product.title}</h3>
         <p className="text-xs text-gray-600 mb-2">{product.brand}</p>
         <div className="flex items-center mb-2">
-          {[...Array(5)].map((_, i) => (
-            <Star key={i} className={`w-4 h-4 ${i < Math.round(product.averageRating) ? 'text-yellow-400 fill-current' : 'text-gray-300 fill-current'}`} />
-          ))}
+          <p className="bg-green-500 text-white text-sm font-bold px-2 py-1 flex items-center justify-center rounded-lg">
+            {product.averageRating} ★
+          </p>
         </div>
-        <div className="flex justify-between items-center">
-          <div>
-            <span className="text-lg font-bold text-gray-800">${product.discountedPrice}</span>
-            <span className="text-xs text-gray-500 line-through ml-1">${product.price}</span>
+        <div className="flex justify-between items-center mt-auto">
+          <div className="flex flex-col">
+            <span className="text-lg font-bold text-gray-800">${product.discountedPrice.toFixed(2)}</span>
+            <span className="text-xs text-gray-500 line-through">${product.price.toFixed(2)}</span>
           </div>
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             className={`text-white p-2 rounded-full ${cardStyles[style].replace('bg-', 'bg-').replace('-50', '-500')}`}
+            aria-label={`Add ${product.title} to cart`}
           >
             <ShoppingCart className="w-4 h-4" />
           </motion.button>

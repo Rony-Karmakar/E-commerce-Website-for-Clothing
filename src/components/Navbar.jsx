@@ -15,7 +15,7 @@ const Navbar = () => {
     const [input, setInput] = useState('');
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const navigate = useNavigate();
-    
+
     useEffect(() => {
         fetchCartData();
         console.log(cartItemCount)
@@ -30,13 +30,19 @@ const Navbar = () => {
         }
     }
 
+    const handleLogOut = () => {
+        const tokenKey = "jwtToken"
+        localStorage.removeItem(tokenKey);
+        navigate("/Log")
+    }
+
     const navlinks = [
         { name: "Home", link: "/" },
         { name: "Orders", link: "/TotalOrders" },
         { name: "Cart", link: "/Cart" },
         { name: "Wishlists", link: "/Wishlists" },
         { name: "Help & Support", link: "/Help & Support" },
-        { name: "Log In", link: "/Log" }
+        { name: "Log In", link: "/Log" },
     ];
 
     const categories = [
@@ -53,7 +59,7 @@ const Navbar = () => {
                         <button onClick={() => setSidebar(true)} className="text-gray-600 hover:text-gray-900 focus:outline-none">
                             <FiMenu className="text-2xl" />
                         </button>
-                        <Link to="/" className="text-2xl font-bold text-gray-800">LOGO</Link>
+                        <Link to="/" className="text-2xl font-bold text-gray-800">GhEmAzOn</Link>
                     </div>
 
                     <div className="hidden md:flex space-x-6">
@@ -84,7 +90,7 @@ const Navbar = () => {
 
                 <AnimatePresence>
                     {isSearchOpen && (
-                        <motion.form 
+                        <motion.form
                             initial={{ opacity: 0, y: -20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -20 }}
@@ -142,7 +148,9 @@ const Navbar = () => {
                                             {link.name}
                                         </Link>
                                     ))}
+                                    <button onClick={handleLogOut} className="block text-gray-600 hover:text-gray-900 font-medium">Log Out</button>
                                 </div>
+
                             </div>
                         </motion.div>
                     </motion.div>

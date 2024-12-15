@@ -3,6 +3,7 @@ import axios from 'axios';
 import InputField from '../components/InputField';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { FaSpinner } from 'react-icons/fa';
 
 function RegisterPage() {
   const [email, setEmail] = useState('');
@@ -10,24 +11,22 @@ function RegisterPage() {
   const [lastName, setLastName] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const validateInputs = () => {
     let isValid = true;
     const newErrors = {};
 
-    // First Name validation
     if (!firstName) {
       newErrors.firstName = "First name is required";
       isValid = false;
     }
 
-    // Last Name validation
     if (!lastName) {
       newErrors.lastName = "Last name is required";
       isValid = false;
     }
 
-    // Email validation
     if (!email) {
       newErrors.email = "Email is required";
       isValid = false;
@@ -36,11 +35,13 @@ function RegisterPage() {
       isValid = false;
     }
 
-    // Password validation
     if (!password) {
       newErrors.password = "Password is required";
       isValid = false;
-    } 
+    } else if (password.length < 8 || password.length > 16) {
+      newErrors.password = "Password must be between 8 and 16 characters";
+      isValid = false;
+    }
 
     setErrors(newErrors);
     return isValid;
@@ -51,6 +52,8 @@ function RegisterPage() {
       return;
     }
 
+    setIsLoading(true);
+
     try {
       const res = await axios.post('http://localhost:5454/auth/signup', 
         { firstName, lastName, email, password }, 
@@ -60,6 +63,8 @@ function RegisterPage() {
     } catch (error) {
       console.error("Error response: ", error.response?.data?.error); 
       toast.error(error.response?.data?.error || "Registration failed");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -73,7 +78,7 @@ function RegisterPage() {
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
           placeholder="First Name"
-          error={errors.firstName}  // Pass error message if first name is invalid
+          error={errors.firstName}
         />
 
         <InputField
@@ -81,7 +86,7 @@ function RegisterPage() {
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
           placeholder="Last Name"
-          error={errors.lastName}  // Pass error message if last name is invalid
+          error={errors.lastName}
         />
         
         <InputField
@@ -89,7 +94,7 @@ function RegisterPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email id"
-          error={errors.email}  // Pass error message if email is invalid
+          error={errors.email}
         />
 
         <InputField
@@ -97,15 +102,19 @@ function RegisterPage() {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-          error={errors.password}  // Pass error message if password is invalid
+          placeholder="Password (8-16 characters)"
+          error={errors.password}
         />
 
         <button
           onClick={handleSubmit}
-          className="w-full bg-gray-800 text-white py-2 rounded-lg hover:bg-gray-900 transition duration-200"
+          disabled={isLoading}
+          className="w-full bg-gray-800 text-white py-2 rounded-lg hover:bg-gray-900 transition duration-200 flex items-center justify-center"
         >
-          Register
+          {isLoading ? (
+            <FaSpinner className="animate-spin mr-2" />
+          ) : null}
+          {isLoading ? 'Registering...' : 'Register'}
         </button>
       </div>
     </div>
@@ -113,3 +122,4 @@ function RegisterPage() {
 }
 
 export default RegisterPage;
+

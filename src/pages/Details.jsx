@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import InputField from '../components/InputField';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { RiDeleteBin6Line } from "react-icons/ri";
 
 const Details = () => {
     const navigate = useNavigate();
@@ -17,24 +18,30 @@ const Details = () => {
     const [selectedAddress, setSelectedAddress] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [errorMessages, setErrorMessages] = useState({});
+    const [addressId, setAddressId] = useState(0);
+    const [orderDetails, setOrderDetails] = useState({})
+    const [render, setRender] = useState(false);
 
     useEffect(() => {
         const fetchProfile = async () => {
             setIsLoading(true);
             try {
-                const res = await axios.get("http://localhost:5454/api/users/profile", {
+                const res = await axios.get("http://localhost:5454/api/addresses/", {
                     headers: { Authorization: `Bearer ${localStorage.getItem("jwtToken")}` }
                 });
+                console.log(res.data);
                 if (res.data) {
-                    setUser(res.data);
-                    setAddresses(res.data.addresses || []);
-                    setFirstName(res.data.firstName || '');
-                    setLastName(res.data.lastName || '');
-                    setStreetAddress(res.data.streetAddress || '');
-                    setCity(res.data.city || '');
-                    setState(res.data.state || '');
-                    setZipCode(res.data.zipCode || '');
-                    setMobile(res.data.mobile || '');
+                    setAddresses(res.data || []);
+                    console.log(addresses);
+                    // setUser(res.data);
+                    // setAddresses(res.data.addresses || []);
+                    // setFirstName(res.data.firstName || '');
+                    // setLastName(res.data.lastName || '');
+                    // setStreetAddress(res.data.streetAddress || '');
+                    // setCity(res.data.city || '');
+                    // setState(res.data.state || '');
+                    // setZipCode(res.data.zipCode || '');
+                    // setMobile(res.data.mobile || '');
                 }
             } catch (err) {
                 console.log("Error fetching profile:", err);
@@ -44,7 +51,7 @@ const Details = () => {
         };
 
         fetchProfile();
-    }, []);
+    }, [render]);
 
     const validateForm = () => {
         const errors = {};
@@ -72,14 +79,77 @@ const Details = () => {
         setMobile(address.mobile || '');
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validateForm()) return;
 
         const userDetails = { firstName, lastName, streetAddress, city, state, zipCode, user, mobile };
         console.log(userDetails);
-        navigate('/Orders', { state: userDetails });
+        try {
+            console.log(userDetails);
+            const res = await axios.post("http://localhost:5454/api/orders/",
+                userDetails,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("jwtToken")}`
+                    }
+                })
+            if (res) {
+                console.log(res.data)
+                navigate('/Orders', { state: res.data });
+                // setOrderDetails(res.data);
+                // console.log(orderDetails);
+                // console.log(orderDetails)
+                // console.log(res.data.id);
+                // setId(res.data.id);
+                // setOrderData(res.data.orderItems);
+                // setSubtotal(res.data.totalPrice);
+            }
+        } catch (err) {
+            console.log("Something went wrong", err);
+        }
+
     };
+
+    const addressSubmit = async () => {
+        try {
+            console.log(addressId)
+            const res = await axios.post(`http://localhost:5454/api/orders/${addressId}`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("jwtToken")}`
+                    }
+                })
+            if (res) {
+                console.log(res)
+                navigate('/Orders', { state: res.data });
+            }
+        } catch (error) {
+            console.log("Something went wrong", error);
+        }
+    }
+
+    const deleteAddress = async () => {
+        try {
+            console.log("Deleting address with ID:", addressId);
+            const res = await axios.delete(
+                `http://localhost:5454/api/addresses/delete/${addressId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("jwtToken")}`
+                    }
+                }
+            );
+
+            if (res.status === 200) {
+                console.log("Address deleted successfully:", res.data);
+                setRender(!render);
+            }
+        } catch (error) {
+            console.error("Error occurred while deleting the address:", error);
+        }
+    }
 
     if (isLoading) {
         return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -87,38 +157,48 @@ const Details = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-4 flex items-center justify-center">
-            <div className="w-full max-w-6xl bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
+            <div className="w-full max-w-10xl bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
                 {/* Address List */}
-                <div className="w-full md:w-1/3 bg-gray-50 p-6 border-b md:border-b-0 md:border-r border-gray-200">
+                <div className="w-full md:w-1/2 bg-gray-50 p-6 border-b md:border-b-0 md:border-r border-gray-200">
                     <h3 className="text-2xl font-bold text-gray-800 mb-6">Saved Addresses</h3>
-                    <div className="space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto pr-2">
+                    <div className="space-y-4 h-full max-h-[calc(89vh-200px)] overflow-y-auto pr-2">
                         {addresses.map((address) => (
-                            <div 
-                                key={address.id} 
-                                className={`p-4 border rounded-lg transition-all duration-200 ease-in-out ${
-                                    selectedAddress && selectedAddress.id === address.id
-                                        ? 'border-blue-500 bg-blue-50'
-                                        : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
-                                }`}
+                            <div
+                                key={address.id}
+                                className={`p-4 border rounded-lg transition-all duration-200 ease-in-out ${selectedAddress && selectedAddress.id === address.id
+                                    ? 'border-blue-500 bg-blue-50'
+                                    : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                                    }`}
                             >
-                                <label className="flex items-center space-x-3 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedAddress && selectedAddress.id === address.id}
-                                        onChange={() => handleAddressSelect(address)}
-                                        className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
-                                    />
-                                    <span className="text-gray-700 text-sm">
-                                        {address.firstName} {address.lastName}, {address.streetAddress}, {address.city}, {address.state} {address.zipCode}
-                                    </span>
-                                </label>
+                                <div className='flex justify-between'>
+                                    <label className="flex items-center space-x-3 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            onChange={() => setAddressId(address.id)}
+                                            className="form-checkbox h-5 w-5 text-blue-600 transition duration-150 ease-in-out"
+                                        />
+                                        <span className="text-gray-700 text-sm">
+                                            {address.firstName} {address.lastName}, {address.streetAddress}, {address.city}, {address.state} {address.zipCode}
+                                        </span>
+                                    </label>
+                                    <button onClick={deleteAddress}><RiDeleteBin6Line /></button>
+                                </div>
                             </div>
                         ))}
+                    </div>
+                    <div className='flex justify-center items-center'>
+                        <button
+                            onClick={addressSubmit}
+                            type="submit"
+                            className="w-fit px-8 bg-gray-700 text-white py-3 rounded-lg text-lg font-semibold hover:bg-gray-700 transition duration-300 ease-in-out transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50"
+                        >
+                            Order
+                        </button>
                     </div>
                 </div>
 
                 {/* User Details Form */}
-                <div className="w-full md:w-2/3 p-8 md:p-10">
+                <div className="w-full bg-gray-50 md:w-1/2 p-8 md:p-10">
                     <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">User Details</h2>
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0">
@@ -181,12 +261,15 @@ const Details = () => {
                             error={errorMessages.mobile}
                         />
 
-                        <button
-                            type="submit"
-                            className="w-full bg-blue-600 text-white py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition duration-300 ease-in-out transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-                        >
-                            Save Details
-                        </button>
+                        <div className='flex justify-center items-center'>
+                            <button
+                                type="submit"
+                                className="w-fit px-6 bg-gray-700 text-white py-3 rounded-lg text-lg font-semibold hover:bg-gray-700 transition duration-300 ease-in-out transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50"
+                            >
+                                Save Details
+                            </button>
+                        </div>
+
                     </form>
                 </div>
             </div>

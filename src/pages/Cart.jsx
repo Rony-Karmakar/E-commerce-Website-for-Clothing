@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { ShopContext } from '../context/ShopContext'
 import { RiDeleteBin6Line } from "react-icons/ri";
 import CartTotalValue from '../components/CartTotalValue';
@@ -11,52 +11,54 @@ const Cart = () => {
     //const API = ;
     //const { products, currency, cartItems, updateQuantity, navigate} = useContext(ShopContext);
     const navigate = useNavigate();
-    const {currency, setRerender, rerender} = useContext(ShopContext);
+    const { currency, setRerender, rerender } = useContext(ShopContext);
     const [cartData, setCartData] = useState([]);
     const [totalCartData, setTotalCartData] = useState([]);
     const [subtotal, setSubtotal] = useState(0)
     const [render, setRender] = useState(1);
 
-    useEffect(()=> {
+    useEffect(() => {
         const fetchCartData = async () => {
-            try{
+            try {
                 const res = await axios.get("http://localhost:5454/api/cart/", {
-                    headers: { 
-                        Authorization: `Bearer ${localStorage.getItem("jwtToken")}` 
-                      }
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("jwtToken")}`
+                    }
                 })
-                if(res){
+                if (res) {
                     console.log(res.data)
                     setTotalCartData(res.data);
                     setCartData(res.data.cartItems);
                     setSubtotal(res.data.totalDiscountedPrice)
                 }
                 console.log(cartData);
+                console.log(totalCartData);
                 console.log(subtotal);
                 console.log(res.data.cartItems.length)
-            }catch(err){
-                console.log("Something went wrong",err)
+            } catch (err) {
+                console.log("Something went wrong", err)
             }
         }
         fetchCartData()
     }, [render])
 
     const deleteCartItem = async (id) => {
-        try{
-            const res = await axios.delete(`http://localhost:5454/api/cart_items/${id}`,{
-                headers: { 
-                    Authorization: `Bearer ${localStorage.getItem("jwtToken")}` 
-                  }
+        try {
+            console.log(id);
+            const res = await axios.delete(`http://localhost:5454/api/cart_items/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("jwtToken")}`
+                }
             })
-            if(res){
+            if (res) {
                 console.log(res);
                 setTimeout(() => toast.success(res.data.message), 0);
                 setRender(!render);
                 setRerender(!rerender);
             }
 
-        }catch(err){
-            console.log("Something went wrong",err)
+        } catch (err) {
+            console.log("Something went wrong", err)
         }
     }
 
@@ -64,18 +66,18 @@ const Cart = () => {
         console.log(quantity);
         try {
             const res = await axios.put(`http://localhost:5454/api/cart_items/${id}`, {
-                cart, product, size, quantity, price, userId 
+                cart, product, size, quantity, price, userId
             }, {
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem("jwtToken")}` 
+                    Authorization: `Bearer ${localStorage.getItem("jwtToken")}`
                 }
             });
-            if(res){
+            if (res) {
                 console.log(res)
                 setRender(!render);
             }
-        }catch(err){
-            console.log("Something went wrong",err)
+        } catch (err) {
+            console.log("Something went wrong", err)
         }
     }
 
@@ -93,7 +95,7 @@ const Cart = () => {
                                     <div>
                                         <p className='text-xs sm:text-lg font-medium'>{item.product.title}</p>
                                         <div className='flex items-center gap-5 mt-2'>
-                                           <p>
+                                            <p>
                                                 {currency}{item.product.discountedPrice}
                                             </p>
                                             <p className=' text-gray-500 line-through'>
@@ -103,18 +105,18 @@ const Cart = () => {
                                                 ({item.product.discountPersent}% OFF)
                                             </p>
                                             <p className='px-2 border bg-slate-50'>{item.size}</p>
-                                            <input 
-                                                
-                                                className='border-2 border-gray-400 max-w-10 sm:max-w-20 px-1 sm:px-2 py-1 mr-2' 
-                                                type="number" 
-                                                min={1} 
+                                            <input
+
+                                                className='border-2 border-gray-400 max-w-10 sm:max-w-20 px-1 sm:px-2 py-1 mr-2'
+                                                type="number"
+                                                min={1}
                                                 defaultValue={item.quantity}
                                                 onChange={(e) => updateCartItem(item.id, item, item.product, item.size, e.target.value, item.product.price, totalCartData.user.id)}
                                             />
                                         </div>
                                     </div>
                                 </div>
-                                <button onClick={()=> deleteCartItem(item.id)}><RiDeleteBin6Line /></button>
+                                <button onClick={() => deleteCartItem(item.id)}><RiDeleteBin6Line /></button>
                             </div>
                         )
                     })
@@ -123,10 +125,10 @@ const Cart = () => {
             <div className='flex justify-end my-20'>
                 <div className='w-full sm:w-[450px]'>
                     <div className="bg-white p-4 sm:p-6 shadow-md rounded-md">
-                        <CartTotalValue subtotal={subtotal}/>
+                        <CartTotalValue subtotal={subtotal} />
                     </div>
                     <div className='w-full text-end'>
-                        <button onClick={()=> navigate('/Details')} className='bg-black text-white text-sm my-8 px-8 py-3 hover:bg-gray-700'>PROCEED TO CHECKOUT</button>
+                        <button onClick={() => navigate('/Details')} className='bg-black text-white text-sm my-8 px-8 py-3 hover:bg-gray-700'>PROCEED TO CHECKOUT</button>
                     </div>
                 </div>
             </div>

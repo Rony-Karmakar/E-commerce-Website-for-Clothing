@@ -4,33 +4,35 @@ import axios from 'axios';
 import WishListProductCard from '../components/wishListProductCard';
 
 const Wishlists = () => {
-  const { products, wishlist, removeFromWishlist, addToCart } = useContext(ShopContext);
-  const [wishListItems, setWishLsiItems] = useState([]);
+  const [wishListItems, setWishListItems] = useState([]); // Corrected state variable name
   const [render, setRender] = useState(1);
 
-  useEffect(()=> {
+  useEffect(() => {
     const fetchProducts = async () => {
-      try{
+      try {
         const res = await axios.get("http://localhost:5454/api/wishlist/", {
-          headers: { 
-            Authorization: `Bearer ${localStorage.getItem("jwtToken")}` 
-          }   
-        })
-        setWishLsiItems(res.data.wishlistItems)
-      }catch(err){
-        console.log("Something went wrong", err)
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+          },
+        });
+        console.log(res);
+        setWishListItems(res.data.wishlistItems || []); 
+        console.log(res.data.wishlistItems);
+      } catch (err) {
+        console.error("Something went wrong", err);
+        setWishListItems([]); 
       }
-    }
+    };
 
-    fetchProducts()
-  },[render])
+    fetchProducts();
+  }, [render]);
 
   return (
     <div className="p-4">
       <h2 className="text-2xl font-bold mt-8 mb-4">
         My Wishlist <span className="text-gray-500">({wishListItems.length} items)</span>
       </h2>
-      
+
       {wishListItems.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {wishListItems.map((item, index) => (

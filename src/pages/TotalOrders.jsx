@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { ShopContext } from '../context/ShopContext'
 import { RiDeleteBin6Line } from "react-icons/ri";
 import CartTotalValue from '../components/CartTotalValue';
@@ -12,29 +12,29 @@ const TotalOrders = () => {
     const location = useLocation();
     const userDetails = location.state;
     const navigate = useNavigate();
-    const {currency} = useContext(ShopContext);
+    const { currency } = useContext(ShopContext);
     const [totalOrderData, setTotalOrderData] = useState([]);
     const [totalCartData, setTotalCartData] = useState([]);
     const [subtotal, setSubtotal] = useState(0)
     const [render, setRender] = useState(1);
 
-    useEffect(()=> {
+    useEffect(() => {
         const fetchOrdersData = async () => {
-            try{
+            try {
                 console.log(userDetails);
                 const res = await axios.get("http://localhost:5454/api/orders/user",
                     {
-                    headers: { 
-                        Authorization: `Bearer ${localStorage.getItem("jwtToken")}` 
-                      }
-                })
-                if(res){
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`
+                        }
+                    })
+                if (res) {
                     console.log(res.data)
-                    setTotalOrderData(res.data);
+                    setTotalOrderData(res.data.reverse());
                 }
-                
-            }catch(err){
-                console.log("Something went wrong",err)
+
+            } catch (err) {
+                console.log("Something went wrong", err)
             }
         }
         fetchOrdersData()
@@ -84,16 +84,17 @@ const TotalOrders = () => {
                     <div key={id}>
                         <p>Created Date: {new Date(item.createdAt).toLocaleDateString()}</p>
                         {item.orderItems.map((orderItem, index) => (
-                            <TotalOrderComponent 
-                                key={index} 
-                                orderData={orderItem} 
-                                status={item.orderStatus} 
+                            <TotalOrderComponent
+                                key={index}
+                                orderData={orderItem}
+                                totalDetails={item}
+                                status={item.orderStatus}
                             />
                         ))}
                     </div>
                 ))}
             </div>
-            
+
         </div>
     )
 }
