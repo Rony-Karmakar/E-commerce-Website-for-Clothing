@@ -19,7 +19,7 @@ export const LoginForm = () => {
 
       if (token) {
         try {
-          const res = await axios.post('http://localhost:5454/auth/verifyToken', { token });
+          const res = await axios.get('http://localhost:5454/auth/verify', { token });
 
           if (res.status === 200 && res.data.isValid) {
             navigate('/');

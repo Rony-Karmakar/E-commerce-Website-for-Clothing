@@ -20,6 +20,7 @@ import ConfirmationPage from './pages/ConfirmationPage';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import VerifyEmail from './pages/VerifyEmail';
+import HelpAndSupport from './pages/HelpAndSupport'
 
 function Layout() {
   return (
@@ -45,6 +46,7 @@ function App() {
         <Route path="/Search/:name" element={<Search />} />
         <Route path="/Product/:id" element={<ProductDetails />} />
         <Route path="/Cart" element={<Cart />} />
+        <Route path="/Help" element={<HelpAndSupport />} />
         <Route path="/Wishlists" element={<Wishlists />} />
         <Route path="/Place-Order" element={<PlaceOrder />} />
         <Route path="/Orders" element={<Orders />} />

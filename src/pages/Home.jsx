@@ -79,13 +79,13 @@ function Hero() {
           initial={{ opacity: 0, scale: 0 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.6 }}
-          className="absolute -top-16 -left-16 w-32 h-32 bg-yellow-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"
+          className="absolute -top-16 left-0 w-32 h-32 bg-yellow-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"
         />
         <motion.div
           initial={{ opacity: 0, scale: 0 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.8 }}
-          className="absolute -bottom-8 right-0 w-32 h-32 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"
+          className="absolute -bottom-8 right-0 w-32 h-32 bg-pink-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"
         />
       </div>
     </section>
@@ -140,9 +140,9 @@ function ProductCard({ product, index, style }) {
     >
       <div className="relative w-full h-60 overflow-hidden bg-gray-200">
         <Link to={`/Product/${product.id}`}>
-          <img 
-            src={product.imageUrl} 
-            alt={product.title} 
+          <img
+            src={product.imageUrl}
+            alt={product.title}
             className="w-full h-full object-cover object-top hover:scale-110 transition ease-in-out"
           />
         </Link>

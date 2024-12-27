@@ -12,7 +12,7 @@ const ShopContextProvider = (props) => {
     const [cartItemCount, setCartItemCount] = useState(0)
     const [cartIds, setCartIds] = useState([]);
     const [rerender, setRerender] = useState(0);
-    const currency = '$';
+    const currency = '₹';
     const delivery_fee = 10;
 
     const fetchCartData = async () => {

@@ -41,14 +41,8 @@ const Navbar = () => {
         { name: "Orders", link: "/TotalOrders" },
         { name: "Cart", link: "/Cart" },
         { name: "Wishlists", link: "/Wishlists" },
-        { name: "Help & Support", link: "/Help & Support" },
+        { name: "Help & Support", link: "/Help" },
         { name: "Log In", link: "/Log" },
-    ];
-
-    const categories = [
-        { name: "Men", link: "/Men" },
-        { name: "Women", link: "/Women" },
-        { name: "Kids", link: "/Kids" }
     ];
 
     return (
@@ -59,15 +53,10 @@ const Navbar = () => {
                         <button onClick={() => setSidebar(true)} className="text-gray-600 hover:text-gray-900 focus:outline-none">
                             <FiMenu className="text-2xl" />
                         </button>
-                        <Link to="/" className="text-2xl font-bold text-gray-800">GhEmAzOn</Link>
                     </div>
 
-                    <div className="hidden md:flex space-x-6">
-                        {categories.map((category, index) => (
-                            <Link key={index} to={category.link} className="text-gray-600 hover:text-gray-900 font-medium">
-                                {category.name}
-                            </Link>
-                        ))}
+                    <div className="absolute left-1/2 transform -translate-x-1/2 text-center">
+                        <Link to="/" className="text-2xl font-bold text-gray-800">GhEmAzOn</Link>
                     </div>
 
                     <div className="flex items-center space-x-4">

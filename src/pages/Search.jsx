@@ -14,18 +14,22 @@ const Search = () => {
   const [color, setColor] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
+  // Pagination state
+  const [pageNumber, setPageNumber] = useState(0);  // Start at page 1
+  const [pageSize, setPageSize] = useState(12);  // Number of products per page
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get(`${API}?q=${name}`, {
+        const res = await axios.get(`${API}?query=${name}&pageNumber=${pageNumber}&pageSize=${pageSize}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
           },
         });
         if (res.data) {
-          console.log(res.data);
-          setProducts(res.data);
-          setSortedProducts(res.data);
+          console.log(res.data)
+          setProducts(res.data.content);
+          setSortedProducts(res.data.content);
         }
       } catch (err) {
         console.error("Error fetching products:", err);
@@ -33,7 +37,7 @@ const Search = () => {
     };
 
     fetchProducts();
-  }, [name]);
+  }, [name, pageNumber, pageSize]);  // Trigger re-fetching when pageNumber or pageSize changes
 
   if (!products.length) {
     return <p className="text-center py-10">No products found...</p>;
@@ -58,6 +62,14 @@ const Search = () => {
 
   const toggleFilter = () => {
     setIsFilterOpen(!isFilterOpen);
+  };
+
+  const handleNextPage = () => {
+    setPageNumber(prevPage => prevPage + 1);  // Increment page number to go to the next page
+  };
+
+  const handlePrevPage = () => {
+    setPageNumber(prevPage => Math.max(prevPage - 1, 0));  // Decrement page number, but not below 1
   };
 
   return (
@@ -114,8 +126,15 @@ const Search = () => {
                   discountPercent={item.discountPercent}
                   discountedPrice={item.discountedPrice}
                   brand={item.brand}
+                  quantity={item.quantity}
                 />
               ))}
+          </div>
+
+          {/* Pagination controls */}
+          <div className="flex justify-between mt-6">
+            <button onClick={handlePrevPage} disabled={pageNumber === 0} className="px-4 py-2 bg-gray-300 rounded-md">Previous</button>
+            <button onClick={handleNextPage} className="px-4 py-2 bg-gray-300 rounded-md">Next</button>
           </div>
         </div>
       </div>
@@ -124,4 +143,3 @@ const Search = () => {
 };
 
 export default Search;
-

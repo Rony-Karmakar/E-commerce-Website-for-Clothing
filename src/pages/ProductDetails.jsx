@@ -59,13 +59,13 @@ const ProductDetails = () => {
 
     const fetchSimilarProducts = async (category, title) => {
         try {
-            const res = await axios.get(`${API}?q=${category}`, {
+            const res = await axios.get(`${API}?query=${category}&pageNumber=${0}&pageSize=${100}`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
                 },
             });
             if (res.data) {
-                const similar = res.data.filter(product =>
+                const similar = res.data.content.filter(product =>
                     product.id !== id && compareTitles(product.title, title)
                 );
                 setSimilarProducts(similar);
@@ -86,17 +86,26 @@ const ProductDetails = () => {
         return <div className="flex justify-center items-center h-screen">Loading...</div>;
     }
 
+    const isOutOfStock = singleProduct.quantity === 0;
+
     return (
         <div className="bg-white">
             <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
                 <div className="lg:grid lg:grid-cols-2 lg:gap-x-8 lg:items-start">
                     {/* Left column */}
-                    <div className="w-full aspect-w-1 aspect-h-1">
+                    <div className="w-full aspect-w-1 aspect-h-1 relative">
                         <img
                             src={singleProduct.imageUrl}
                             alt={singleProduct.title}
-                            className="w-full h-full object-center object-cover sm:rounded-lg"
+                            className={`w-full h-full object-center object-cover sm:rounded-lg ${isOutOfStock ? 'opacity-50' : ''}`}
                         />
+                        {isOutOfStock && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <span className="bg-red-600 text-white px-4 py-2 rounded-full text-lg font-bold transform -rotate-12">
+                                    Out of Stock
+                                </span>
+                            </div>
+                        )}
                     </div>
 
                     {/* Right column */}
@@ -142,10 +151,12 @@ const ProductDetails = () => {
                                         key={item.name}
                                         type="button"
                                         onClick={() => setSize(item.name)}
+                                        disabled={isOutOfStock}
                                         className={`${item.name === size
                                             ? 'bg-black text-white'
                                             : 'bg-white text-gray-900 border-gray-200'
-                                            } border rounded-md py-2 px-4 text-sm font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-colors`}
+                                            } ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
+                                            } border rounded-md py-2 px-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-colors`}
                                     >
                                         {item.name}
                                     </button>
@@ -165,20 +176,30 @@ const ProductDetails = () => {
                                     min={1}
                                     value={quantity}
                                     onChange={handleQuantityChange}
-                                    className="w-full rounded-md border border-gray-300 py-2 px-3 text-base leading-normal text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
+                                    disabled={isOutOfStock}
+                                    className={`w-full rounded-md border border-gray-300 py-2 px-3 text-base leading-normal text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black ${isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''
+                                        }`}
                                 />
                             </div>
 
                             <button
                                 type="button"
                                 onClick={() => addToCart(singleProduct.id, size, quantity, singleProduct.price)}
-                                className="flex-1 bg-black border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white shadow-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-transform transform hover:scale-105 active:scale-95"
+                                disabled={isOutOfStock}
+                                className={`flex-1 border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white shadow-lg transition-transform transform ${isOutOfStock
+                                    ? 'bg-gray-400 cursor-not-allowed'
+                                    : 'bg-black hover:bg-gray-800 hover:scale-105 active:scale-95'
+                                    } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black`}
                             >
-                                Add to Cart
+                                {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
                             </button>
                         </div>
                         <div className="mt-6 text-center">
-                            <p className="mt-1 text-sm text-gray-500">{singleProduct.quantity} items available</p>
+                            {isOutOfStock ? (
+                                <p className="mt-1 text-sm text-red-500 font-semibold">This product is currently out of stock</p>
+                            ) : (
+                                <p className="mt-1 text-sm text-gray-500">{singleProduct.quantity} items available</p>
+                            )}
                         </div>
                     </div>
                 </div>
